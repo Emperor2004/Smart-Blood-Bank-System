@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: docker.io/library/postgres:14-alpine
+    container_name: blood_bank_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-bloodbank}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bloodbank123}
+      POSTGRES_DB: ${DB_NAME:-smart_blood_bank}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:Z
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bloodbank}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: blood_bank_backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-bloodbank}:${DB_PASSWORD:-bloodbank123}@db:5432/${DB_NAME:-smart_blood_bank}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production}
+      SMS_GATEWAY_API_KEY: ${SMS_GATEWAY_API_KEY:-}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
