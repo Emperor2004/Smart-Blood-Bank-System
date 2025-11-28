@@ -8,7 +8,7 @@ services:
     runtime: docker
     branch: main
     dockerfilePath: docker/Dockerfile.backend.render
-    dockerContext: backend
+    dockerContext: .
     plan: starter
     healthCheckPath: /health
     envVars:
@@ -30,7 +30,7 @@ services:
     runtime: docker
     branch: main
     dockerfilePath: frontend/Dockerfile
-    dockerContext: frontend
+    dockerContext: .
     plan: starter
     envVars:
       - key: VITE_BACKEND_URL
