@@ -25,5 +25,6 @@ ENV PYTHONPATH=/app
 # Expose port (Render will override via PORT env var)
 EXPOSE 8000
 
-# Run migrations and then gunicorn (migrations run on every startup, safe for free tier)
-CMD ["sh", "-c", "alembic upgrade head && gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000}"]
+# Wait for the database to be available, run migrations, then start Gunicorn.
+# This avoids alembic failing when the DB isn't ready yet (common on first deploy).
+CMD ["sh", "-c", "until psql \"$DATABASE_URL\" -c \"SELECT 1\" >/dev/null 2>&1; do echo 'Waiting for DB...'; sleep 2; done; alembic upgrade head && gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000}"]
