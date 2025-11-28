@@ -1,0 +1,81 @@
+╔══════════════════════════════════════════════════════════════╗
+║     🩸 SMART BLOOD BANK - DEPLOYMENT CHECKLIST 🩸           ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 STEP-BY-STEP DEPLOYMENT
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 1: INITIAL SETUP (One-time)                            │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Run: ./setup_deployment.sh
+  □ Authenticate ngrok: ngrok config add-authtoken YOUR_TOKEN
+  □ Authenticate Vercel: vercel login
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 2: START BACKEND (Terminal 1)                          │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Run: ./start_backend.sh
+  □ Wait for: "Application startup complete"
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 3: START NGROK (Terminal 2)                            │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Run: ngrok http 8000
+  □ Copy HTTPS URL: https://________.ngrok.io
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 4: UPDATE CORS (Terminal 3)                            │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Run: ./update_cors.sh https://YOUR-NGROK-URL.ngrok.io
+  □ Restart backend (Ctrl+C in Terminal 1, then ./start_backend.sh)
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 5: DEPLOY FRONTEND TO VERCEL                           │
+└──────────────────────────────────────────────────────────────┘
+
+  □ cd frontend
+  □ vercel
+  □ vercel env add VITE_API_URL production
+  □ Enter: https://YOUR-NGROK-URL.ngrok.io
+  □ vercel --prod
+  □ Copy Vercel URL: https://________.vercel.app
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 6: FINAL CORS UPDATE                                   │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Run: ./update_cors.sh https://NGROK-URL https://VERCEL-URL
+  □ Restart backend one more time
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 7: TEST DEPLOYMENT                                     │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Visit: https://YOUR-NGROK-URL.ngrok.io/health
+  □ Visit: https://YOUR-VERCEL-URL.vercel.app
+  □ Test: Upload CSV
+  □ Test: View Forecast
+
+╔══════════════════════════════════════════════════════════════╗
+║                    🎉 DEPLOYMENT COMPLETE! 🎉                ║
+╚══════════════════════════════════════════════════════════════╝
+
+📚 DOCUMENTATION:
+  • Quick Guide: QUICK_DEPLOY.md
+  • Full Guide: NGROK_VERCEL_DEPLOYMENT.md
+  • Summary: DEPLOYMENT_SUMMARY.md
+
+🔗 DASHBOARDS:
+  • ngrok: https://dashboard.ngrok.com
+  • Vercel: https://vercel.com/dashboard
+
+⚠️  REMEMBER:
+  • ngrok URL changes on restart (free tier)
+  • Keep backend terminal running
+  • Keep ngrok terminal running
+  • Update Vercel env var if ngrok URL changes
+
