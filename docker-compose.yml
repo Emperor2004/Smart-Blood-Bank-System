@@ -29,14 +29,25 @@ services:
       SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production}
       SMS_GATEWAY_API_KEY: ${SMS_GATEWAY_API_KEY:-}
       ENVIRONMENT: ${ENVIRONMENT:-development}
+      PYTHONPATH: /app
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: blood_bank_frontend
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:

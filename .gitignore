@@ -75,3 +75,6 @@ models/
 tmp/
 temp/
 *.tmp
+
+frontend/build/
+frontend/node_modules/

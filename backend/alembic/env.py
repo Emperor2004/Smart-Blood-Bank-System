@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # Import your models here for autogenerate support
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from app.models import Base  # This will be created in task 2
 
 # this is the Alembic Config object, which provides

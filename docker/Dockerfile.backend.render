@@ -1,0 +1,29 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies (including build tools for Prophet/cmdstan)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    postgresql-client \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Set environment to locate app module
+ENV PYTHONPATH=/app
+
+# Expose port (Render will override via PORT env var)
+EXPOSE 8000
+
+# Run gunicorn, reading port from PORT env var (Render requirement) or default to 8000
+CMD ["sh", "-c", "gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000}"]
