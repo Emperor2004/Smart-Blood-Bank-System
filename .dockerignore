@@ -1,0 +1,29 @@
+# Git and build artifacts
+.git
+.gitignore
+node_modules
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.egg-info
+dist
+build
+
+# Documentation and config (keep only essential)
+README.md
+DEPLOYMENT_GUIDE.md
+FINAL_COMPLETION_REPORT.md
+FINAL_PROJECT_SUMMARY.md
+PROJECT_*.md
+QUICKSTART.md
+Makefile
+PITCH_GUIDE.md
+.kiro
+scripts/
+tests/
+Idea/
+docker/
+
+# Keep everything else for build context
