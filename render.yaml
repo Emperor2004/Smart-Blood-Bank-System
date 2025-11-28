@@ -7,7 +7,7 @@ services:
     name: smart-blood-bank-backend
     runtime: docker
     branch: main
-    dockerfilePath: docker/Dockerfile.backend.render
+    dockerfilePath: Dockerfile.backend.render
     dockerContext: .
     plan: starter
     healthCheckPath: /health
