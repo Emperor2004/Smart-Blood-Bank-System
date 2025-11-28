@@ -1,0 +1,5 @@
+record_id,hospital_id,blood_group,component,units,unit_expiry_date,collection_date
+INV101,H999,A+,RBC,15,2025-12-25,2025-11-25
+INV102,H001,XY+,RBC,10,2025-12-26,2025-11-26
+INV103,H001,O+,InvalidComponent,20,2025-12-27,2025-11-27
+INV104,H001,AB+,Platelets,-5,2025-12-28,2025-11-28

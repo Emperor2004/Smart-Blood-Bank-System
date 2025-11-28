@@ -1,0 +1,6 @@
+record_id,hospital_id,blood_group,component,units,unit_expiry_date,collection_date
+TEST001,H001,A+,RBC,15,2025-12-25,2025-11-28
+TEST002,H001,B+,RBC,10,2025-12-26,2025-11-28
+TEST003,H001,O+,Plasma,20,2025-12-27,2025-11-28
+TEST004,H001,AB+,Platelets,8,2025-12-28,2025-11-28
+TEST005,H001,A-,RBC,12,2025-12-29,2025-11-28

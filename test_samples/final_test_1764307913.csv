@@ -1,0 +1,4 @@
+record_id,hospital_id,blood_group,component,units,unit_expiry_date,collection_date
+FINAL1764307913A,H001,A+,RBC,10,2025-12-30,2025-11-28
+FINAL1764307913B,H001,O-,Plasma,15,2025-12-31,2025-11-28
+FINAL1764307913C,H001,B+,Platelets,8,2026-01-01,2025-11-28

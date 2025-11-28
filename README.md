@@ -19,161 +19,147 @@ A lightweight, deployable web application for government hospital blood banks to
 - **Database**: PostgreSQL 14+
 - **ML**: Prophet, Pandas, NumPy
 - **Testing**: pytest, Hypothesis (property-based testing)
-- **Deployment**: Docker, Docker Compose
+# Smart Blood Bank System
 
-## Project Structure
+Smart Blood Bank System is a deployable web application for hospital blood-bank teams to manage inventory, forecast demand, identify expiring units, and recommend transfers between facilities.
+
+**Core capabilities**: inventory ingestion, ML forecasting (Prophet), expiry risk detection, transfer recommendations, donor management, and notifications.
+
+**Stack**: Python 3.10+, FastAPI, SQLAlchemy, PostgreSQL, Vite/React frontend, Docker.
+
+**Repository layout (high level)**
 
 ```
-.
-├── backend/
-│   ├── app/
-│   │   ├── api/          # API endpoints
-│   │   ├── models/       # Database models
-│   │   ├── repositories/ # Data access layer
-│   │   ├── services/     # Business logic
-│   │   ├── config.py     # Configuration
-│   │   └── main.py       # FastAPI app
-│   ├── alembic/          # Database migrations
-│   ├── requirements.txt  # Python dependencies
-│   └── alembic.ini       # Alembic configuration
-├── frontend/             # Frontend application (TBD)
-├── tests/                # Test files
-├── scripts/              # Utility scripts
-├── docker/               # Docker configurations
-├── docker-compose.yml    # Docker Compose setup
-└── .env.example          # Environment variables template
+README.md
+backend/         # FastAPI app, models, services, migrations
+frontend/        # Vite + React frontend
+docker/          # Dockerfiles used by compose/builds
+docker-compose.yml
+scripts/         # helper scripts (db init, checks, start scripts)
+QUICKSTART.md
+QUICK_DEPLOY.md
+DEPLOYMENT_GUIDE.md
+tests/
 ```
 
-## Setup Instructions
+**Quick links**
+- Backend entry: `backend/app/main.py` (FastAPI)
+- Backend requirements: `backend/requirements.txt`
+- Docker Compose: `docker-compose.yml`
+- Quick start guide: `QUICKSTART.md`
+- Quick deployment notes: `QUICK_DEPLOY.md`
 
-### Prerequisites
+**Prerequisites**
+- Python 3.10+
+- Docker & Docker Compose (for containerized DB / full stack)
+- Git
 
-- Python 3.10 or higher
-- Docker and Docker Compose
-- PostgreSQL 14+ (if not using Docker)
+## Quick Start (Local)
 
-### Local Development Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd smart-blood-bank
-   ```
-
-2. **Create environment file**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Start PostgreSQL with Docker Compose**
-   ```bash
-   docker-compose up -d db
-   ```
-
-4. **Install Python dependencies**
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
-
-5. **Run database migrations**
-   ```bash
-   alembic upgrade head
-   ```
-
-6. **Start the development server**
-   ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-7. **Access the API**
-   - API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health
-
-### Using Docker Compose (Full Stack)
+1. Clone the repo
 
 ```bash
-# Start all services
+git clone <repo-url>
+cd "Smart Blood Bank System"
+```
+
+2. Copy environment template and edit values if needed
+
+```bash
+cp .env.example .env
+# edit .env as required
+```
+
+3. Start PostgreSQL (Docker Compose)
+
+```bash
+docker-compose up -d db
+```
+
+4. Install Python dependencies and run migrations
+
+```bash
+cd backend
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+5. Start the backend (development)
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+6. Open the API docs
+
+- Swagger UI: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
+
+## Quick Start (Docker Compose - Full Stack)
+
+Start all services (db, backend, frontend):
+
+```bash
 docker-compose up -d
-
-# View logs
+# tail logs
 docker-compose logs -f
+```
 
-# Stop services
+Stop services:
+
+```bash
 docker-compose down
 ```
 
-### Running Tests
+Notes:
+- Compose builds the backend using `docker/Dockerfile.backend` and the frontend using `frontend/Dockerfile`.
+- Default DB credentials and ports are provided via `docker-compose.yml` and `.env` variables.
+
+## Useful Scripts
+- `./start_backend.sh` — wrapper to run the backend locally (see script)
+- `./update_cors.sh <origin>` — update allowed CORS origins for backend (used with ngrok/Vercel)
+- `scripts/check_setup.py` — verifies environment and setup
+
+## Testing
+
+Run tests from the `backend` directory:
 
 ```bash
 cd backend
-pytest tests/ -v
+pytest -v
 ```
 
-### Running Property-Based Tests
+Property-based tests are marked and can be run with markers if available:
 
 ```bash
-cd backend
-pytest tests/ -v -m property
+pytest -v -m property
 ```
 
 ## Environment Variables
 
-See `.env.example` for all available configuration options. Key variables:
+Copy `.env.example` to `.env` and update as needed. Important vars:
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `SECRET_KEY`: Application secret key
-- `SMS_GATEWAY_API_KEY`: Twilio/AWS SNS API key (optional)
-- `FORECAST_HORIZON_DAYS`: Default forecast period (default: 7)
-- `TRANSFER_RADIUS_KM`: Search radius for transfers (default: 50)
+- `DATABASE_URL` — PostgreSQL connection string
+- `SECRET_KEY` — app secret/key
+- `SMS_GATEWAY_API_KEY` — optional SMS provider key
+- `BACKEND_PORT`, `DB_PORT`, `FRONTEND_PORT` — ports used by Docker Compose
 
-## API Documentation
+## Deployment Notes
 
-Once the server is running, visit:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- For quick local exposure use `ngrok` with `./start_backend.sh` and `./update_cors.sh` (see `QUICK_DEPLOY.md`).
+- Frontend can be deployed to Vercel; set `VITE_API_URL` to your backend URL.
+- Docker and Render/Railway/Heroku options are documented in `DEPLOYMENT_GUIDE.md` and `RENDER_WEB_SERVICE_DEPLOYMENT.md`.
 
-## Deployment
+## Contributing
 
-### Heroku
+1. Create a feature branch
+2. Add tests for new functionality
+3. Open a PR and request reviews
 
-```bash
-# Install Heroku CLI and login
-heroku login
+## License & Attribution
 
-# Create app
-heroku create smart-blood-bank
-
-# Add PostgreSQL addon
-heroku addons:create heroku-postgresql:hobby-dev
-
-# Set environment variables
-heroku config:set SECRET_KEY=your-secret-key
-
-# Deploy
-git push heroku main
-```
-
-### Render / Railway
-
-1. Connect your Git repository
-2. Set environment variables from `.env.example`
-3. Deploy with one click
-
-## Development Workflow
-
-1. Create a new branch for your feature
-2. Implement changes following the task list in `.kiro/specs/smart-blood-bank/tasks.md`
-3. Write tests (unit tests and property-based tests)
-4. Run tests and ensure they pass
-5. Submit pull request
-
-## License
-
-Government of India - Public Health Initiative
+Government of India - Public Health Initiative (see project docs)
 
 ## Support
 
-For issues and questions, please contact the development team.
+For issues, review the repository docs or open an issue. For urgent support, contact the project maintainers listed in the repository.
