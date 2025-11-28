@@ -1,12 +1,80 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import InventoryUpload from './components/InventoryUpload'
 import ForecastView from './components/ForecastView'
+import { API_URL } from './config'
 
 export default function App() {
   const [view, setView] = useState<'home' | 'upload' | 'forecast'>('home')
+  const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'error'>('checking')
+  const [errorDetails, setErrorDetails] = useState<string>('')
+
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        console.log('Checking API at:', API_URL)
+        const response = await fetch(`${API_URL}/health`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        })
+        console.log('API Response:', response.status, response.statusText)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('API Health:', data)
+          setApiStatus('connected')
+        } else {
+          setApiStatus('error')
+          setErrorDetails(`HTTP ${response.status}: ${response.statusText}`)
+        }
+      } catch (error: any) {
+        console.error('API Connection Error:', error)
+        setApiStatus('error')
+        setErrorDetails(`${error.name}: ${error.message}`)
+      }
+    }
+    checkAPI()
+  }, [])
 
   return (
     <div className="app">
+      {apiStatus === 'error' && (
+        <div style={{
+          background: '#ff4444',
+          color: 'white',
+          padding: '15px',
+          textAlign: 'center',
+          fontWeight: 'bold'
+        }}>
+          ⚠️ API Connection Failed: {errorDetails}
+          <br />
+          <small style={{ fontSize: '12px', opacity: 0.9 }}>
+            API URL: {API_URL} | Check browser console (F12) for details
+          </small>
+        </div>
+      )}
+      
+      {apiStatus === 'checking' && (
+        <div style={{
+          background: '#ffa500',
+          color: 'white',
+          padding: '10px',
+          textAlign: 'center'
+        }}>
+          🔄 Connecting to API at {API_URL}...
+        </div>
+      )}
+      
+      {apiStatus === 'connected' && (
+        <div style={{
+          background: '#4CAF50',
+          color: 'white',
+          padding: '10px',
+          textAlign: 'center'
+        }}>
+          ✅ Connected to API: {API_URL}
+        </div>
+      )}
+      
       <header className="header">
         <div className="header-content">
           <div className="logo">

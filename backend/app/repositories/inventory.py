@@ -45,7 +45,7 @@ class InventoryRepository:
     
     def create_many(self, inventories: List[InventoryCreate]) -> List[Inventory]:
         """
-        Create multiple inventory records in bulk.
+        Create multiple inventory records in bulk with upsert.
         
         Args:
             inventories: List of inventory data to create
@@ -53,9 +53,10 @@ class InventoryRepository:
         Returns:
             List of created inventory records
         """
-        db_inventories = []
+        from sqlalchemy.dialects.postgresql import insert
+        
         for inventory in inventories:
-            db_inventory = Inventory(
+            stmt = insert(Inventory).values(
                 record_id=inventory.record_id,
                 hospital_id=inventory.hospital_id,
                 blood_group=inventory.blood_group.value,
@@ -63,12 +64,21 @@ class InventoryRepository:
                 units=inventory.units,
                 unit_expiry_date=inventory.unit_expiry_date,
                 collection_date=inventory.collection_date
+            ).on_conflict_do_update(
+                index_elements=['record_id'],
+                set_={
+                    'hospital_id': inventory.hospital_id,
+                    'blood_group': inventory.blood_group.value,
+                    'component': inventory.component.value,
+                    'units': inventory.units,
+                    'unit_expiry_date': inventory.unit_expiry_date,
+                    'collection_date': inventory.collection_date
+                }
             )
-            db_inventories.append(db_inventory)
+            self.db.execute(stmt)
         
-        self.db.bulk_save_objects(db_inventories, return_defaults=True)
         self.db.commit()
-        return db_inventories
+        return []
     
     def get_by_id(self, record_id: str) -> Optional[Inventory]:
         """
