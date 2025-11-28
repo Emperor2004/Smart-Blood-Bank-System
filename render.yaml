@@ -2,7 +2,7 @@ databases:
   - name: smart-blood-bank-db
     databaseName: smart_blood_bank
     user: bloodbank_user
-    plan: starter
+    plan: free
 
 services:
   - type: web
@@ -11,7 +11,7 @@ services:
     branch: main
     dockerfilePath: Dockerfile.backend.render
     dockerContext: .
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
@@ -29,17 +29,16 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: SCHEDULER_ENABLED
-        value: "True"
+        value: "False"
       - key: CORS_ORIGINS
         value: "*"
 
   - type: web
     name: smart-blood-bank-frontend
-    runtime: docker
+    runtime: static
     branch: main
-    dockerfilePath: frontend/Dockerfile
-    dockerContext: .
-    plan: starter
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://smart-blood-bank-backend.onrender.com

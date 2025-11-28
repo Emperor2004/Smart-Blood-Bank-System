@@ -1,81 +1,99 @@
 ╔══════════════════════════════════════════════════════════════╗
-║     🩸 SMART BLOOD BANK - DEPLOYMENT CHECKLIST 🩸           ║
+║          RENDER CLI DEPLOYMENT - READY TO GO                 ║
 ╚══════════════════════════════════════════════════════════════╝
 
-📋 STEP-BY-STEP DEPLOYMENT
+✅ Render CLI installed: v2.5.0
+✅ Logged in as: Om Narayan Pandit (panditom2003@gmail.com)
+✅ render.yaml configured with PostgreSQL database
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 1: INITIAL SETUP (One-time)                            │
-└──────────────────────────────────────────────────────────────┘
+💰 COST:
+   - Database: FREE for 90 days, then $7/month
+   - Backend: FREE forever (sleeps after 15 min)
+   - Frontend: FREE forever (always on)
 
-  □ Run: ./setup_deployment.sh
-  □ Authenticate ngrok: ngrok config add-authtoken YOUR_TOKEN
-  □ Authenticate Vercel: vercel login
+🚀 DEPLOY NOW (Choose one):
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 2: START BACKEND (Terminal 1)                          │
-└──────────────────────────────────────────────────────────────┘
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  □ Run: ./start_backend.sh
-  □ Wait for: "Application startup complete"
+Option 1: AUTOMATED SCRIPT (Recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 3: START NGROK (Terminal 2)                            │
-└──────────────────────────────────────────────────────────────┘
+./deploy_render_cli.sh
 
-  □ Run: ngrok http 8000
-  □ Copy HTTPS URL: https://________.ngrok.io
+This will:
+  ✓ Push code to GitHub
+  ✓ Deploy database + backend + frontend
+  ✓ Run migrations
+  ✓ Create admin user
+  ✓ Show your URLs
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 4: UPDATE CORS (Terminal 3)                            │
-└──────────────────────────────────────────────────────────────┘
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  □ Run: ./update_cors.sh https://YOUR-NGROK-URL.ngrok.io
-  □ Restart backend (Ctrl+C in Terminal 1, then ./start_backend.sh)
+Option 2: MANUAL COMMAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 5: DEPLOY FRONTEND TO VERCEL                           │
-└──────────────────────────────────────────────────────────────┘
+render blueprint launch
 
-  □ cd frontend
-  □ vercel
-  □ vercel env add VITE_API_URL production
-  □ Enter: https://YOUR-NGROK-URL.ngrok.io
-  □ vercel --prod
-  □ Copy Vercel URL: https://________.vercel.app
+Then manually:
+  1. Run migrations: render service shell smart-blood-bank-backend
+     → alembic upgrade head
+  2. Create admin (see DEPLOY_CLI.md)
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 6: FINAL CORS UPDATE                                   │
-└──────────────────────────────────────────────────────────────┘
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  □ Run: ./update_cors.sh https://NGROK-URL https://VERCEL-URL
-  □ Restart backend one more time
+📋 WHAT GETS DEPLOYED:
 
-┌──────────────────────────────────────────────────────────────┐
-│ STEP 7: TEST DEPLOYMENT                                     │
-└──────────────────────────────────────────────────────────────┘
+1. PostgreSQL Database (smart-blood-bank-db)
+   - Plan: free
+   - Database: smart_blood_bank
+   - Auto-connected to backend
 
-  □ Visit: https://YOUR-NGROK-URL.ngrok.io/health
-  □ Visit: https://YOUR-VERCEL-URL.vercel.app
-  □ Test: Upload CSV
-  □ Test: View Forecast
+2. Backend API (smart-blood-bank-backend)
+   - Plan: free
+   - Runtime: Docker
+   - Auto-runs migrations on startup
+   - Health check: /health
 
-╔══════════════════════════════════════════════════════════════╗
-║                    🎉 DEPLOYMENT COMPLETE! 🎉                ║
-╚══════════════════════════════════════════════════════════════╝
+3. Frontend (smart-blood-bank-frontend)
+   - Plan: free (static site)
+   - Always on (no sleep)
+   - Points to backend API
 
-📚 DOCUMENTATION:
-  • Quick Guide: QUICK_DEPLOY.md
-  • Full Guide: NGROK_VERCEL_DEPLOYMENT.md
-  • Summary: DEPLOYMENT_SUMMARY.md
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 DASHBOARDS:
-  • ngrok: https://dashboard.ngrok.com
-  • Vercel: https://vercel.com/dashboard
+🔗 YOUR URLS (after deployment):
 
-⚠️  REMEMBER:
-  • ngrok URL changes on restart (free tier)
-  • Keep backend terminal running
-  • Keep ngrok terminal running
-  • Update Vercel env var if ngrok URL changes
+Frontend:  https://smart-blood-bank-frontend.onrender.com
+Backend:   https://smart-blood-bank-backend.onrender.com
+API Docs:  https://smart-blood-bank-backend.onrender.com/docs
+Health:    https://smart-blood-bank-backend.onrender.com/health
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 MONITOR DEPLOYMENT:
+
+render services list
+render service logs smart-blood-bank-backend --tail
+render service logs smart-blood-bank-frontend --tail
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️  DEPLOYMENT TIME: ~5-10 minutes
+   - Database: 2-3 min
+   - Backend: 3-5 min (includes Docker build + migrations)
+   - Frontend: 2-3 min
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 DOCUMENTATION:
+
+Quick:    DEPLOY_CLI.md
+Complete: RENDER_CLI_DEPLOY.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 READY? Run this now:
+
+    ./deploy_render_cli.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
