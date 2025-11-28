@@ -97,21 +97,17 @@ Render will now:
 
 ### After backend deploys (may take 10-15 min):
 
-1. Go to the backend service page
-2. Click **Shell** tab
-3. Run migrations to create the database schema:
-   ```bash
-   cd /app
-   alembic upgrade head
-   ```
-4. You should see output like:
-   ```
-   INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
-   INFO  [alembic.runtime.migration] Will assume transactional DDL.
-   INFO  [alembic.runtime.migration] Running upgrade  -> 001_create_initial_schema, done
-   ```
+**Migrations run automatically!**
 
-If migrations succeed, you're good! If they fail, check the logs (click **Logs** tab).
+- The Docker image now runs `alembic upgrade head` before starting the server
+- This happens on every deployment, so the database schema will be created automatically
+- Check the **Logs** tab to confirm migrations ran:
+  ```
+  INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+  INFO  [alembic.runtime.migration] Running upgrade  -> 001_create_initial_schema, done
+  ```
+
+If you see these messages, the backend is ready!
 
 ---
 
@@ -202,6 +198,12 @@ After redeploy, the frontend should fully connect to the backend without CORS er
 
 ## Important Notes for Hobby Tier
 
+### No Render Shell Access
+- **Free tier does NOT support Render Shell** (SSH/interactive commands)
+- Use the **Logs** tab to view container output
+- Migrations now run automatically on every service restart
+- Use the **Restart** button to trigger migrations again
+
 ### Service Spinning Down
 - **Free tier services automatically spin down after 15 minutes of inactivity**
 - When you access the service again, it takes ~30 seconds to wake up
@@ -252,60 +254,38 @@ After redeploy, the frontend should fully connect to the backend without CORS er
 **Issue**: Backend logs show "database does not exist" or connection timeout
 
 **Solution**:
-1. Verify `DATABASE_URL` env var is set on backend service
-2. Use the **Internal Database URL** (not external) — this is crucial!
-3. Check that migrations were run:
-   ```bash
-   # In backend Shell
-   cd /app
-   alembic current
-   ```
-   Should show a migration like `001_create_initial_schema`
+1. Verify `DATABASE_URL` env var is set on backend service (use the **Internal Database URL**)
+2. Check Render Logs tab for the exact error
+3. Verify PostgreSQL instance is running (check database service page)
+4. Restart the backend service — migrations will re-run on startup
 
 ### Migrations fail or hang
 
-**Issue**: `alembic upgrade head` returns an error or hangs
+**Issue**: Logs show alembic errors or service keeps restarting
 
 **Solution**:
-1. Check current migration status:
-   ```bash
-   cd /app
-   alembic current
-   ```
-2. If stuck, try resetting (destructive — only on dev/free tier):
-   ```bash
-   cd /app
-   alembic downgrade base  # Removes all migrations
-   alembic upgrade head    # Re-applies all migrations
-   ```
-3. Check Render logs for detailed errors
+1. Check Logs tab for the specific alembic error
+2. Common issues: missing `DATABASE_URL`, wrong credentials, PostgreSQL not ready
+3. Fix the env var and restart the service
 
 ---
 
-## Useful Commands (via Render Shell)
+## Viewing Logs and Debugging
 
-Access the Shell from the service page → **Shell** tab.
+Since Render Shell is not available on free tier, use the **Logs** tab:
 
-```bash
-# Check backend status
-cd /app
-python -c "from app.main import app; print('Backend loaded successfully')"
+1. Go to the backend service page in Render
+2. Click **Logs** tab
+3. Scroll to see real-time output from the Docker container
 
-# View current migrations
-alembic current
+**Look for:**
+- Alembic migration messages (database schema creation)
+- Gunicorn startup message: `Listening at: http://0.0.0.0:PORT`
+- Any error messages
 
-# View migration history
-alembic history
-
-# Check database connection
-psql $DATABASE_URL -c "SELECT version();"
-
-# View logs
-tail -f logs/app.log
-
-# Restart the service (from Render dashboard, not Shell)
-# Click service name → Restart button
-```
+**To restart the service:**
+- Click the backend service name → **Restart** button (top right)
+- This will re-run the Docker container, including migrations
 
 ---
 
