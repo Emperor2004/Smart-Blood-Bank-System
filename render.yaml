@@ -1,5 +1,8 @@
 services:
-  # Backend API Service
+  # Minimal blueprint for Hobby/Starter tier on Render.
+  # Note: create the managed PostgreSQL instance in the Render dashboard (recommended for Hobby tier),
+  # then set the `DATABASE_URL` env var on the backend service.
+
   - type: web
     name: smart-blood-bank-backend
     runtime: docker
@@ -7,6 +10,7 @@ services:
     dockerfilePath: docker/Dockerfile.backend.render
     dockerContext: backend
     plan: starter
+    healthCheckPath: /health
     envVars:
       - key: ENVIRONMENT
         value: production
@@ -21,7 +25,6 @@ services:
       - key: SCHEDULER_ENABLED
         value: "True"
 
-  # Frontend Static Site
   - type: web
     name: smart-blood-bank-frontend
     runtime: docker
@@ -31,4 +34,11 @@ services:
     plan: starter
     envVars:
       - key: VITE_BACKEND_URL
-        value: ""   # set this after backend is created (or fill with backend URL)
+        value: "" # set to your backend URL after deploy (e.g. https://smart-blood-bank-backend.onrender.com)
+
+# Deployment notes:
+# 1) Create a PostgreSQL instance via Render Dashboard (New → PostgreSQL). Use DB name `smart_blood_bank` or as preferred.
+# 2) In the Backend service settings, add env var `DATABASE_URL` with the DB connection string from the PostgreSQL instance.
+# 3) Deploy the backend and then open the backend Shell in Render and run: `alembic upgrade head` to create the schema.
+# 4) Set `VITE_BACKEND_URL` on the Frontend service to the backend public URL and redeploy the frontend (or trigger a rebuild).
+# 5) Hobby/Starter limitations: services may sleep when idle; background jobs and heavy ML training may be slow or unreliable.
