@@ -1,4 +1,4 @@
-const BACKEND_BASE = (import.meta.env.VITE_BACKEND_URL as string) || 'http://localhost:8000'
+const BACKEND_BASE = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
 export async function apiUploadInventory(form: FormData) {
   const res = await fetch(`${BACKEND_BASE}/api/inventory/upload`, {
