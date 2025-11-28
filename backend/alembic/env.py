@@ -8,7 +8,25 @@ from alembic import context
 
 # Import your models here for autogenerate support
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from app.models import Base  # This will be created in task 2
+import importlib.util
+
+# Import your models here for autogenerate support
+# Ensure the project root is on sys.path (parent of alembic/)
+project_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, project_root)
+
+# Try normal package import first, fall back to direct file import if necessary
+try:
+    from app.models import Base  # This will be created in task 2
+except Exception:
+    base_py = os.path.join(project_root, "app", "models", "base.py")
+    if os.path.exists(base_py):
+        spec = importlib.util.spec_from_file_location("app.models.base", base_py)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        Base = getattr(mod, "Base")
+    else:
+        raise
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
