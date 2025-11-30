@@ -1,4 +1,4 @@
-const BACKEND_BASE = (import.meta.env.VITE_API_URL as string) || 'https://yolande-nondivisional-norah.ngrok-free.dev'
+const BACKEND_BASE = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
 export async function apiUploadInventory(form: FormData) {
   try {
