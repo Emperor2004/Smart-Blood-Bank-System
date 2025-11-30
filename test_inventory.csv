@@ -1,4 +1,0 @@
-record_id,hospital_id,blood_group,component,units,unit_expiry_date,collection_date
-REC001,H001,A+,RBC,10,2025-12-20,2025-11-20
-REC002,H001,B+,RBC,5,2025-12-21,2025-11-21
-REC003,H001,O+,Plasma,8,2025-12-22,2025-11-22
