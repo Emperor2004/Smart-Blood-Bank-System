@@ -53,7 +53,7 @@ async def shutdown_event():
 
 
 # API routers
-from app.api import inventory, hospital, dashboard, forecast, transfer, donor, notification, auth
+from app.api import inventory, hospital, dashboard, forecast, transfer, donor, notification, auth, eraktkosh
 
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(inventory.router, prefix="/api/inventory", tags=["inventory"])
@@ -70,3 +70,4 @@ app.include_router(notification.router, prefix="/api/notifications", tags=["noti
 # app.include_router(transfer.router, prefix="/api/transfers", tags=["transfers"])
 # app.include_router(donor.router, prefix="/api/donors", tags=["donors"])
 # app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(eraktkosh.router, prefix="/api/eraktkosh", tags=["eraktkosh"])

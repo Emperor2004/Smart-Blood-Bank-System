@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import InventoryUpload from './components/InventoryUpload'
 import ForecastView from './components/ForecastView'
+import Dashboard from './components/Dashboard'
+import Transfers from './components/Transfers'
+import Donors from './components/Donors'
 import { API_URL } from './config'
 
+type View = 'home' | 'dashboard' | 'upload' | 'forecast' | 'transfers' | 'donors'
+
 export default function App() {
-  const [view, setView] = useState<'home' | 'upload' | 'forecast'>('home')
+  const [view, setView] = useState<View>('home')
   const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'error'>('checking')
   const [errorDetails, setErrorDetails] = useState<string>('')
 
   useEffect(() => {
     const checkAPI = async () => {
       try {
-        console.log('Checking API at:', API_URL)
         const response = await fetch(`${API_URL}/health`, {
           method: 'GET',
           headers: { 'Accept': 'application/json' }
         })
-        console.log('API Response:', response.status, response.statusText)
         
         if (response.ok) {
-          const data = await response.json()
-          console.log('API Health:', data)
           setApiStatus('connected')
         } else {
           setApiStatus('error')
           setErrorDetails(`HTTP ${response.status}: ${response.statusText}`)
         }
       } catch (error: any) {
-        console.error('API Connection Error:', error)
         setApiStatus('error')
         setErrorDetails(`${error.name}: ${error.message}`)
       }
@@ -35,109 +35,173 @@ export default function App() {
     checkAPI()
   }, [])
 
+  const goHome = () => setView('home')
+
+  const getViewTitle = () => {
+    const titles: Record<View, string> = {
+      home: 'Home',
+      dashboard: 'Dashboard',
+      upload: 'Upload Inventory',
+      forecast: 'Demand Forecast',
+      transfers: 'Transfer Recommendations',
+      donors: 'Donor Management'
+    }
+    return titles[view]
+  }
+
   return (
     <div className="app">
       {apiStatus === 'error' && (
-        <div style={{
-          background: '#ff4444',
-          color: 'white',
-          padding: '15px',
-          textAlign: 'center',
-          fontWeight: 'bold'
-        }}>
-          ⚠️ API Connection Failed: {errorDetails}
-          <br />
-          <small style={{ fontSize: '12px', opacity: 0.9 }}>
-            API URL: {API_URL} | Check browser console (F12) for details
-          </small>
+        <div className="alert alert-error">
+          <span>⚠️ API Connection Failed: {errorDetails}</span>
+          <button onClick={() => window.location.reload()} className="btn-small">
+            🔄 Retry
+          </button>
         </div>
       )}
       
       {apiStatus === 'checking' && (
-        <div style={{
-          background: '#ffa500',
-          color: 'white',
-          padding: '10px',
-          textAlign: 'center'
-        }}>
-          🔄 Connecting to API at {API_URL}...
+        <div className="alert alert-warning">
+          🔄 Connecting to API...
         </div>
       )}
       
-      {apiStatus === 'connected' && (
-        <div style={{
-          background: '#4CAF50',
-          color: 'white',
-          padding: '10px',
-          textAlign: 'center'
-        }}>
-          ✅ Connected to API: {API_URL}
+      {apiStatus === 'connected' && view !== 'home' && (
+        <div className="alert alert-success">
+          ✅ Connected
         </div>
       )}
       
       <header className="header">
         <div className="header-content">
-          <div className="logo">
+          <div className="logo" onClick={goHome} style={{ cursor: 'pointer' }} title="Go to Home">
             <span className="logo-icon">🩸</span>
             <h1>Smart Blood Bank</h1>
           </div>
           <nav className="nav">
             <button 
               className={`nav-btn ${view === 'home' ? 'active' : ''}`}
-              onClick={() => setView('home')}
+              onClick={goHome}
+              title="Home"
             >
               🏠 Home
             </button>
             <button 
+              className={`nav-btn ${view === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setView('dashboard')}
+              title="View Dashboard"
+            >
+              📊 Dashboard
+            </button>
+            <button 
               className={`nav-btn ${view === 'upload' ? 'active' : ''}`}
               onClick={() => setView('upload')}
+              title="Upload CSV"
             >
               📤 Upload
             </button>
             <button 
               className={`nav-btn ${view === 'forecast' ? 'active' : ''}`}
               onClick={() => setView('forecast')}
+              title="View Forecasts"
             >
-              📊 Forecast
+              📈 Forecast
+            </button>
+            <button 
+              className={`nav-btn ${view === 'transfers' ? 'active' : ''}`}
+              onClick={() => setView('transfers')}
+              title="Transfer Recommendations"
+            >
+              🚚 Transfers
+            </button>
+            <button 
+              className={`nav-btn ${view === 'donors' ? 'active' : ''}`}
+              onClick={() => setView('donors')}
+              title="Search Donors"
+            >
+              👥 Donors
             </button>
           </nav>
         </div>
       </header>
 
       <main className="main">
+        {view !== 'home' && (
+          <div className="breadcrumb">
+            <button onClick={goHome} className="back-btn" title="Back to Home">
+              ← Back to Home
+            </button>
+            <span className="current-page">{getViewTitle()}</span>
+          </div>
+        )}
+
         {view === 'home' && (
           <div className="hero">
             <h2>Welcome to Smart Blood Bank</h2>
             <p>Intelligent inventory management and demand forecasting for blood banks</p>
             
             <div className="features">
-              <div className="feature-card" onClick={() => setView('upload')}>
+              <div className="feature-card" onClick={() => setView('dashboard')} title="View real-time statistics">
+                <div className="feature-icon">📊</div>
+                <h3>Dashboard</h3>
+                <p>Real-time inventory overview and analytics</p>
+                <button className="card-btn">View Dashboard →</button>
+              </div>
+              
+              <div className="feature-card" onClick={() => setView('upload')} title="Upload CSV file">
                 <div className="feature-icon">📤</div>
                 <h3>Upload Inventory</h3>
                 <p>Import blood inventory data via CSV files</p>
+                <button className="card-btn">Upload CSV →</button>
               </div>
               
-              <div className="feature-card" onClick={() => setView('forecast')}>
-                <div className="feature-icon">📊</div>
+              <div className="feature-card" onClick={() => setView('forecast')} title="View demand predictions">
+                <div className="feature-icon">📈</div>
                 <h3>Demand Forecast</h3>
                 <p>AI-powered predictions for blood demand</p>
+                <button className="card-btn">View Forecast →</button>
               </div>
               
-              <div className="feature-card">
+              <div className="feature-card" onClick={() => setView('transfers')} title="Get transfer recommendations">
+                <div className="feature-icon">🚚</div>
+                <h3>Transfer Recommendations</h3>
+                <p>Intelligent redistribution between hospitals</p>
+                <button className="card-btn">View Transfers →</button>
+              </div>
+              
+              <div className="feature-card" onClick={() => setView('donors')} title="Search and notify donors">
+                <div className="feature-icon">👥</div>
+                <h3>Donor Management</h3>
+                <p>Search and mobilize eligible donors</p>
+                <button className="card-btn">Search Donors →</button>
+              </div>
+              
+              <div className="feature-card" title="Multi-hospital support">
                 <div className="feature-icon">🏥</div>
                 <h3>Multi-Hospital</h3>
                 <p>Manage inventory across multiple facilities</p>
+                <button className="card-btn disabled">Coming Soon</button>
               </div>
             </div>
           </div>
         )}
 
-        {view === 'upload' && <InventoryUpload />}
-        {view === 'forecast' && <ForecastView />}
+        {view === 'dashboard' && <Dashboard onBack={goHome} />}
+        {view === 'upload' && <InventoryUpload onBack={goHome} />}
+        {view === 'forecast' && <ForecastView onBack={goHome} />}
+        {view === 'transfers' && <Transfers onBack={goHome} />}
+        {view === 'donors' && <Donors onBack={goHome} />}
       </main>
 
       <footer className="footer">
         <p>🩸 Smart Blood Bank System - Saving Lives Through Technology</p>
+        <p className="footer-links">
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('API Docs: http://localhost:8000/docs'); }}>API Docs</a>
+          <span>•</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); alert('Version 1.0.0'); }}>Version 1.0.0</a>
+          <span>•</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); setView('home'); }}>Home</a>
+        </p>
       </footer>
     </div>
   )
